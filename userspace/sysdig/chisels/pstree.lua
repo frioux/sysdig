@@ -105,10 +105,23 @@ end -- }}}
 function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
    local i = 0
    local last = hash_size(pkids) - 1
-   for pid, kids in pairs(pkids) do
+
+   local keys = keys(pkids)
+   local names = {}
+   for k, v in pairs(keys) do
+      local val = {}
+      val[0] = all_processes[v].comm .. "(" .. v .. ")"
+      val[1] = v
+      names[k] = val
+   end
+   table.sort(names, function(a, b)
+      return a[0] < b[0]
+   end)
+   for _, name in pairs(names) do
+      local pid = name[1]
+      local comm = name[0]
+      local kids = pkids[pid]
       local prefix = _prefix
-      local proc = processes[pid]
-      local comm = proc.comm
       if last == i then
          new_prefix = string.gsub(prefix, " │ $", " └─")
              prefix = string.gsub(prefix, " │ $", "   ")
@@ -122,10 +135,10 @@ function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
          print(new_prefix .. comm)
       elseif hash_size(kids) > 1 then
          io.write(new_prefix .. comm .. "─┬─")
-         render_tree(processes, kids, pid, prefix .. x_char(" ", #comm) .. " │ ")
+         render_tree(all_processes, kids, pid, prefix .. x_char(" ", #comm) .. " │ ")
       else
          io.write(new_prefix .. comm .. "───")
-         render_tree(processes, kids, pid, prefix .. x_char(" ", #comm) .. "   ")
+         render_tree(all_processes, kids, pid, prefix .. x_char(" ", #comm) .. "   ")
       end
       i = i + 1
    end
