@@ -16,27 +16,27 @@ args =
 
 terminal = require "ansiterminal"
 
-function on_capture_end(ts_s, ts_ns, delta)
-	if islive then
-		terminal.clearscreen()
-		terminal.moveto(0 ,0)
-		terminal.showcursor()
-		return true
-	end
-	
-	print_sorted_table(grtable, ts_s, 0, delta, vizinfo)
-	
-	return true
-end
+function on_capture_end(ts_s, ts_ns, delta) -- {{{
+   if islive then
+      terminal.clearscreen()
+      terminal.moveto(0 ,0)
+      terminal.showcursor()
+      return true
+   end
+
+   print_sorted_table(grtable, ts_s, 0, delta, vizinfo)
+
+   return true
+end -- }}}
 -- Argument initialization Callback
-function on_set_arg(name, val)
+function on_set_arg(name, val) -- {{{
    if name == "filter" then
       filter = val
       return true
    end
 
    return false
-end
+end -- }}}
 
 -- Imports and globals
 require "common"
@@ -46,26 +46,24 @@ local filter = nil
 local match = false
 
 -- Argument notification callback
-function on_set_arg(name, val)
+function on_set_arg(name, val) -- {{{
    if name == "filter" then
       filter = val
       return true
    end
 
    return false
-end
+end -- }}}
 
 -- Initialization callback
-function on_init()
-   return true
-end
+function on_init() return true end
 
-function on_capture_start()
+function on_capture_start() -- {{{
    capturing = true
    return true
-end
+end -- }}}
 
-function generate_forest(processes)
+function generate_forest(processes) -- {{{
    local ret = {}
    for pid, proc in pairs(processes) do
       if not processes[proc.ptid] then
@@ -73,9 +71,9 @@ function generate_forest(processes)
       end
    end
    return ret
-end
+end -- }}}
 
-function generate_tree(processes, ppid)
+function generate_tree(processes, ppid) -- {{{
    local ret = {}
    for x, proc in pairs(processes) do
       if proc.ptid == ppid then
@@ -83,16 +81,16 @@ function generate_tree(processes, ppid)
       end
    end
    return ret
-end
+end -- }}}
 
 -- Event parsing callback
-function on_event()
+function on_event() -- {{{
    render_all()
    -- terminal.clearscreen()
    -- terminal.hidecursor()
-end
+end -- }}}
 
-function render_all()
+function render_all() -- {{{
    local processes = sysdig.get_thread_table(filter)
    local tree = generate_forest(processes)
    -- print(DataDumper(tree))
@@ -102,9 +100,9 @@ function render_all()
       io.write(comm)
       render_tree(processes, kids, pid, x_char(" ", #comm) .. " │ ")
    end
-end
+end -- }}}
 
-function render_tree(processes, pkids, ppid, _prefix)
+function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
    local i = 0
    local last = hash_size(pkids) - 1
    for pid, kids in pairs(pkids) do
@@ -131,17 +129,17 @@ function render_tree(processes, pkids, ppid, _prefix)
       end
       i = i + 1
    end
-end
+end -- }}}
 
-function x_char(char, count)
+function x_char(char, count) -- {{{
    local str = ""
    for i = 1, count, 1 do
       str = str .. char
    end
    return str
-end
+end -- }}}
 
-function hash_size(hash)
+function hash_size(hash) -- {{{
    if hash == nil then
       return 0
    end
@@ -150,7 +148,15 @@ function hash_size(hash)
       i = i + 1
    end
    return i
-end
+end -- }}}
+
+function keys(hash) -- {{{
+   local ret = {}
+   for k, _ in pairs(hash) do
+      table.insert(ret, k)
+   end
+   return ret
+end -- }}}
 
 --[[ DataDumper.lua
 Copyright (c) 2007 Olivetti-Engineering SA
