@@ -106,21 +106,11 @@ function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
    local i = 0
    local last = hash_size(pkids) - 1
 
-   local keys = keys(pkids)
-   local names = {}
-   for k, v in pairs(keys) do
-      local val = {}
-      val[0] = all_processes[v].comm .. "(" .. v .. ")"
-      val[1] = v
-      names[k] = val
-   end
-   table.sort(names, function(a, b)
-      return a[0] < b[0]
-   end)
-   for _, name in pairs(names) do
+   local list = hash_to_list(pkids, all_processes)
+   for k, name in pairs(list) do
       local pid = name[1]
       local comm = name[0]
-      local kids = pkids[pid]
+      local kids = name[2]
       local prefix = _prefix
       if last == i then
          new_prefix = string.gsub(prefix, " │ $", " └─")
@@ -143,6 +133,37 @@ function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
       i = i + 1
    end
 end -- }}}
+
+
+-- this both converts from a hash-like structure:
+--    {
+--       3 = {},
+--       1 = {},
+--       2 = {},
+--    }
+--
+-- to an array (and thus ordered) structure:
+--
+--    {
+--       1,  {},
+--       2,  {},
+--       3,  {},
+--    }
+--
+-- because arrays are ordered, this implies a sorting operation
+function hash_to_list(tree, all_processes)
+   local names = {}
+   for k, v in pairs(tree) do
+      local val = {}
+      val[0] = all_processes[k].comm -- .. "(" .. v .. ")"
+      val[1] = k
+      val[2] = v
+      table.insert(names, val)
+   end
+   table.sort(names, function(a, b) return a[0] < b[0] end)
+
+   return names
+end
 
 function x_char(char, count) -- {{{
    local str = ""
