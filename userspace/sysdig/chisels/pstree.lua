@@ -103,21 +103,20 @@ function render_all() -- {{{
 end -- }}}
 
 function render_tree(all_processes, pkids, _prefix) -- {{{
-   local i = 0
-   local last = hash_size(pkids) - 1
+   local last = hash_size(pkids)
 
    local list = hash_to_list(pkids, all_processes)
    for k, name in pairs(list) do
       local comm = name[0]
       local kids = name[1]
       local prefix = _prefix
-      if last == i then
+      if last == k then
          new_prefix = string.gsub(prefix, " │ $", " └─")
              prefix = string.gsub(prefix, " │ $", "   ")
       else
          new_prefix = string.gsub(prefix, " │ $", " ├─")
       end
-      if i == 0 then
+      if k == 1 then
          new_prefix = ""
       end
       if hash_size(kids) == 0 then
@@ -129,7 +128,6 @@ function render_tree(all_processes, pkids, _prefix) -- {{{
          io.write(new_prefix .. comm .. "───")
          render_tree(all_processes, kids, prefix .. x_char(" ", #comm) .. "   ")
       end
-      i = i + 1
    end
 end -- }}}
 
