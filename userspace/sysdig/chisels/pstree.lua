@@ -98,14 +98,14 @@ function render_all() -- {{{
    for pid, kids in pairs(tree) do
       local comm = processes[pid].comm
       io.write(comm)
-      render_tree(processes, kids, x_char(" ", #comm) .. " │ ")
+      local l = hash_to_list(kids, processes)
+      render_tree(l, x_char(" ", #comm) .. " │ ")
    end
 end -- }}}
 
-function render_tree(all_processes, pkids, _prefix) -- {{{
-   local last = hash_size(pkids)
+function render_tree(list, _prefix) -- {{{
+   local last = #list
 
-   local list = hash_to_list(pkids, all_processes)
    for k, name in pairs(list) do
       local comm = name[0]
       local kids = name[1]
@@ -119,14 +119,14 @@ function render_tree(all_processes, pkids, _prefix) -- {{{
       if k == 1 then
          new_prefix = ""
       end
-      if hash_size(kids) == 0 then
+      if #kids == 0 then
          print(new_prefix .. comm)
-      elseif hash_size(kids) > 1 then
+      elseif #kids > 1 then
          io.write(new_prefix .. comm .. "─┬─")
-         render_tree(all_processes, kids, prefix .. x_char(" ", #comm) .. " │ ")
+         render_tree(kids, prefix .. x_char(" ", #comm) .. " │ ")
       else
          io.write(new_prefix .. comm .. "───")
-         render_tree(all_processes, kids, prefix .. x_char(" ", #comm) .. "   ")
+         render_tree(kids, prefix .. x_char(" ", #comm) .. "   ")
       end
    end
 end -- }}}
@@ -152,8 +152,8 @@ function hash_to_list(tree, all_processes) -- {{{
    local names = {}
    for k, v in pairs(tree) do
       local val = {}
-      val[0] = all_processes[k].comm -- .. "(" .. v .. ")"
-      val[1] = v
+      val[0] = all_processes[k].comm
+      val[1] = hash_to_list(v, all_processes)
       table.insert(names, val)
    end
    table.sort(names, function(a, b) return a[0] < b[0] end)
