@@ -108,9 +108,8 @@ function render_tree(all_processes, pkids, _prefix) -- {{{
 
    local list = hash_to_list(pkids, all_processes)
    for k, name in pairs(list) do
-      local pid = name[1]
       local comm = name[0]
-      local kids = name[2]
+      local kids = name[1]
       local prefix = _prefix
       if last == i then
          new_prefix = string.gsub(prefix, " │ $", " └─")
@@ -156,8 +155,7 @@ function hash_to_list(tree, all_processes) -- {{{
    for k, v in pairs(tree) do
       local val = {}
       val[0] = all_processes[k].comm -- .. "(" .. v .. ")"
-      val[1] = k
-      val[2] = v
+      val[1] = v
       table.insert(names, val)
    end
    table.sort(names, function(a, b) return a[0] < b[0] end)
