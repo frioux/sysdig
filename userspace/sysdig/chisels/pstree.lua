@@ -98,11 +98,11 @@ function render_all() -- {{{
    for pid, kids in pairs(tree) do
       local comm = processes[pid].comm
       io.write(comm)
-      render_tree(processes, kids, pid, x_char(" ", #comm) .. " │ ")
+      render_tree(processes, kids, x_char(" ", #comm) .. " │ ")
    end
 end -- }}}
 
-function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
+function render_tree(all_processes, pkids, _prefix) -- {{{
    local i = 0
    local last = hash_size(pkids) - 1
 
@@ -125,10 +125,10 @@ function render_tree(all_processes, pkids, ppid, _prefix) -- {{{
          print(new_prefix .. comm)
       elseif hash_size(kids) > 1 then
          io.write(new_prefix .. comm .. "─┬─")
-         render_tree(all_processes, kids, pid, prefix .. x_char(" ", #comm) .. " │ ")
+         render_tree(all_processes, kids, prefix .. x_char(" ", #comm) .. " │ ")
       else
          io.write(new_prefix .. comm .. "───")
-         render_tree(all_processes, kids, pid, prefix .. x_char(" ", #comm) .. "   ")
+         render_tree(all_processes, kids, prefix .. x_char(" ", #comm) .. "   ")
       end
       i = i + 1
    end
@@ -151,7 +151,7 @@ end -- }}}
 --    }
 --
 -- because arrays are ordered, this implies a sorting operation
-function hash_to_list(tree, all_processes)
+function hash_to_list(tree, all_processes) -- {{{
    local names = {}
    for k, v in pairs(tree) do
       local val = {}
@@ -163,7 +163,7 @@ function hash_to_list(tree, all_processes)
    table.sort(names, function(a, b) return a[0] < b[0] end)
 
    return names
-end
+end -- }}}
 
 function x_char(char, count) -- {{{
    local str = ""
@@ -421,3 +421,5 @@ function DataDumper(value, varname, fastmode, ident)
     return table.concat(items)
   end
 end
+
+-- vim: fdm=marker
