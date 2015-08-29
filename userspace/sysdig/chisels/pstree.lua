@@ -153,6 +153,9 @@ function hash_to_list(tree, all_processes) -- {{{
    for k, v in pairs(tree) do
       local val = {}
       val[0] = all_processes[k].comm
+      if (not(all_processes[k].tid == all_processes[k].pid)) then
+        val[0] = '{' .. val[0] .. '}'
+      end
       val[1] = hash_to_list(v, all_processes)
       table.insert(names, val)
    end
