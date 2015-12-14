@@ -76,11 +76,20 @@ end -- }}}
 function generate_tree(processes, ppid) -- {{{
    local ret = {}
    for x, proc in pairs(processes) do
-      if proc.ptid == ppid then
+      if proc.pid == proc.tid and proc.ptid == ppid then
          ret[proc.tid] = generate_tree(processes, proc.tid)
+         generate_thread_tree(processes, proc.tid, ret[proc.tid])
       end
    end
    return ret
+end -- }}}
+
+function generate_thread_tree(processes, ppid, ret) -- {{{
+   for x, proc in pairs(processes) do
+      if not (proc.pid == proc.tid) and proc.pid == ppid then
+         ret[proc.tid] = {}
+      end
+   end
 end -- }}}
 
 -- Event parsing callback
